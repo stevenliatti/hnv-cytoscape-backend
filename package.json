@@ -20,7 +20,8 @@
   "homepage": "https://github.com/stevenliatti/hnv-cytoscape-backend#readme",
   "dependencies": {
     "cytoscape": "^3.17.0",
-    "cytoscape-cise": "^1.0.0"
+    "cytoscape-cise": "^1.0.0",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "nodemon": "2.0.4"
