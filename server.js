@@ -5,13 +5,18 @@ const url = require('url');
 const fetch = require('node-fetch');
 const myCy = require('./cytoscape')
 
+const bHostname = process.env.BACKEND_HOSTNAME;
+const bPort = process.env.BACKEND_PORT;
+
 let map = new Map();
 
 async function getCy(url) {
   if (map.has(url)) {
     return map.get(url);
   } else {
-    const graph = await fetch(`http://localhost/api${url}`).then(res => res.json());
+    const graph = await
+      fetch(`http://${bHostname}:${bPort}${url}`)
+      .then(res => res.json());
     const cyStyle = fs.readFileSync('cy-style.json');
 
     const cy = myCy.compute(JSON.parse(cyStyle), graph);
@@ -35,7 +40,7 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify(cy));
         break;
       default:
-        const proxyReq = http.request(`http://${process.env.BACKEND_HOSTNAME}:${process.env.BACKEND_PORT}${req.url}`);
+        const proxyReq = http.request(`http://${bHostname}:${bPort}${req.url}`);
         proxyReq.on('response', proxyRes => {
           proxyRes.pipe(res);
         });
