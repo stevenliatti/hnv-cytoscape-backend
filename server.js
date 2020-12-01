@@ -46,6 +46,8 @@ const server = http.createServer(async (req, res) => {
       default:
         const proxyReq = http.request(`http://${bHostname}:${bPort}${req.url}`);
         proxyReq.on('response', proxyRes => {
+          res.statusCode = proxyRes.statusCode;
+          res.setHeader('Content-Type', proxyRes.headers['content-type']);
           proxyRes.pipe(res);
         });
         req.pipe(proxyReq);
