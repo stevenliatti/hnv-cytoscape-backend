@@ -1,28 +1,32 @@
-require('dotenv').config()
+require('dotenv').config();
 const fs = require('fs');
 const http = require('http');
 const url = require('url');
 const fetch = require('node-fetch');
-const myCy = require('./cytoscape')
+const Redis = require('ioredis');
+const myCy = require('./cytoscape');
 
 const bHostname = process.env.BACKEND_HOSTNAME;
 const bPort = process.env.BACKEND_PORT;
 
-let map = new Map();
+const redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOSTNAME);
+const cyStyle = fs.readFileSync('cy-style.json');
 
 async function getCy(url) {
-  if (map.has(url)) {
-    return map.get(url);
-  } else {
-    const graph = await
-      fetch(`http://${bHostname}:${bPort}${url}`)
-      .then(res => res.json());
-    const cyStyle = fs.readFileSync('cy-style.json');
-
-    const cy = myCy.compute(JSON.parse(cyStyle), graph);
-    map.set(url, cy);
-    console.log(map.keys());
-    return cy;
+  try {
+    const exists = await redis.exists(url);
+    if (exists != 0) {
+      const cy = await redis.get(url);
+      return cy;
+    } else {
+      const graph = await fetch(`http://${bHostname}:${bPort}${url}`).then(res => res.json());
+      const cy = JSON.stringify(myCy.compute(JSON.parse(cyStyle), graph));
+      redis.set(url, cy);
+      console.log('set url', url);
+      return cy;
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -37,7 +41,7 @@ const server = http.createServer(async (req, res) => {
         const cy = await getCy(req.url);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(cy));
+        res.end(cy);
         break;
       default:
         const proxyReq = http.request(`http://${bHostname}:${bPort}${req.url}`);
@@ -52,6 +56,6 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(process.env.PORT, process.env.HOSTNAME, () => {
-  console.log(`Server running at http://${process.env.HOSTNAME}:${process.env.PORT}/`);
+server.listen(process.env.CYTOSCAPE_PORT, process.env.CYTOSCAPE_HOSTNAME, () => {
+  console.log(`Server running at http://${process.env.CYTOSCAPE_HOSTNAME}:${process.env.CYTOSCAPE_PORT}/`);
 });
