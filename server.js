@@ -1,7 +1,6 @@
 require('dotenv').config();
 const fs = require('fs');
 const http = require('http');
-const url = require('url');
 const fetch = require('node-fetch');
 const Redis = require('ioredis');
 const myCy = require('./cytoscape');
@@ -17,12 +16,13 @@ async function getCy(url) {
     const exists = await redis.exists(url);
     if (exists != 0) {
       const cy = await redis.get(url);
+      console.log('CACHE GET', url);
       return cy;
     } else {
       const graph = await fetch(`http://${bHostname}:${bPort}${url}`).then(res => res.json());
       const cy = JSON.stringify(myCy.compute(JSON.parse(cyStyle), graph));
       redis.set(url, cy);
-      console.log('set url', url);
+      console.log('CACHE SET', url);
       return cy;
     }
   } catch (error) {
@@ -31,27 +31,21 @@ async function getCy(url) {
 }
 
 const server = http.createServer(async (req, res) => {
-  const reqUrl = url.parse(req.url, true);
-  console.log(req.url)
-
-  const startPath = reqUrl.path.split('/')[1];
   try {
-    switch (startPath) {
-      case 'graph':
-        const cy = await getCy(req.url);
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(cy);
-        break;
-      default:
-        const proxyReq = http.request(`http://${bHostname}:${bPort}${req.url}`);
-        proxyReq.on('response', proxyRes => {
-          res.statusCode = proxyRes.statusCode;
-          res.setHeader('Content-Type', proxyRes.headers['content-type']);
-          proxyRes.pipe(res);
-        });
-        req.pipe(proxyReq);
-        break;
+    if (req.url.includes('/graph/actors') || req.url.includes('/graph/shortestPath')) {
+      const cy = await getCy(req.url);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(cy);
+    }
+    else {
+      const proxyReq = http.request(`http://${bHostname}:${bPort}${req.url}`);
+      proxyReq.on('response', proxyRes => {
+        res.statusCode = proxyRes.statusCode;
+        res.setHeader('Content-Type', proxyRes.headers['content-type']);
+        proxyRes.pipe(res);
+      });
+      req.pipe(proxyReq);
     }
   } catch (error) {
     console.error(error);

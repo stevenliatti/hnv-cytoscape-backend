@@ -1,11 +1,13 @@
-[{
+[
+  {
     "selector": "core",
     "style": {
       "selection-box-color": "#AAD8FF",
       "selection-box-border-color": "#8BB0D0",
       "selection-box-opacity": "0.5"
     }
-  }, {
+  },
+  {
     "selector": "node",
     "style": {
       "width": "data(playInDegree)",
@@ -21,7 +23,8 @@
       "overlay-padding": "6px",
       "z-index": "10"
     }
-  }, {
+  },
+  {
     "selector": "node:selected",
     "style": {
       "border-width": "6px",
@@ -30,7 +33,8 @@
       "background-color": "#77828C",
       "text-outline-color": "#77828C"
     }
-  }, {
+  },
+  {
     "selector": "edge",
     "style": {
       "curve-style": "bezier",
@@ -39,22 +43,26 @@
       "width": "3",
       "overlay-padding": "3px"
     }
-  }, {
+  },
+  {
     "selector": "node.unhighlighted",
     "style": {
       "opacity": "0.2"
     }
-  }, {
+  },
+  {
     "selector": "edge.unhighlighted",
     "style": {
       "opacity": "0.05"
     }
-  }, {
+  },
+  {
     "selector": ".highlighted",
     "style": {
       "z-index": "999999"
     }
-  }, {
+  },
+  {
     "selector": "node.highlighted",
     "style": {
       "border-width": "6px",
@@ -63,9 +71,11 @@
       "background-color": "#394855",
       "text-outline-color": "#394855"
     }
-  }, {
+  },
+  {
     "selector": "edge.filtered",
     "style": {
       "opacity": "0"
     }
-  }]
+  }
+]

@@ -11,7 +11,7 @@ exports.compute = (style, graph) => {
     elements: graph,
     layout: {
       name: 'cise',
-      clusters: function (node) {
+      clusters: function(node) {
         return node.data('knowsCommunity')
       },
       animate: false,
@@ -21,15 +21,15 @@ exports.compute = (style, graph) => {
       fit: true,
       padding: 100,
       nodeSeparation: 2,
-      idealInterClusterEdgeLengthCoefficient: 3,
+      idealInterClusterEdgeLengthCoefficient: 4,
       allowNodesInsideCircle: false,
       maxRatioOfNodesInsideCircle: 0.1,
       springCoeff: 0.45,
       nodeRepulsion: 4500,
       gravity: 0.25,
       gravityRange: 3.8,
-      ready: function () { }, // on layoutready
-      stop: function () { }, // on layoutstop
+      ready: function() {}, // on layoutready
+      stop: function() {}, // on layoutstop
     },
     // IMPORTANT parameters here
     headless: false,
