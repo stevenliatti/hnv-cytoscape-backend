@@ -8,7 +8,13 @@ const myCy = require('./cytoscape');
 const bHostname = process.env.BACKEND_HOSTNAME;
 const bPort = process.env.BACKEND_PORT;
 
-const redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOSTNAME);
+const redis = new Redis({
+  port: process.env.REDIS_PORT,
+  host: process.env.REDIS_HOSTNAME,
+  family: 4,
+  password: process.env.REDIS_PASSWORD,
+  db: 0,
+});
 const cyStyle = fs.readFileSync('cy-style.json');
 
 async function getCy(url) {
